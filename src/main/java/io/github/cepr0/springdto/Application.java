@@ -3,12 +3,14 @@ package io.github.cepr0.springdto;
 import io.github.cepr0.springdto.domain.Category;
 import io.github.cepr0.springdto.domain.Product;
 import io.github.cepr0.springdto.repo.BaseRepo;
+import io.github.cepr0.springdto.repo.MyRelProvider;
 import org.h2.tools.Server;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.hateoas.RelProvider;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -25,6 +27,11 @@ public class Application {
     @Bean(initMethod = "start", destroyMethod = "stop")
     public Server h2Server() throws SQLException {
         return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
+    }
+
+    @Bean
+    RelProvider relProvider() {
+        return new MyRelProvider();
     }
     
     @Bean

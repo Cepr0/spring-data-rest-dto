@@ -19,6 +19,9 @@ public abstract class BaseEntity implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private final Integer id;
+
+    @Version
+    private Long version;
     
     @Override
     public String toString() {

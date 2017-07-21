@@ -8,9 +8,9 @@ import org.springframework.hateoas.core.Relation;
  * @author Cepro
  * @since 2017-07-20
  */
-@JsonSerialize(as = CategoryAndQuantity.class)
+@JsonSerialize(as = InterfaceDto.class)
 @Relation(value = "category", collectionRelation = "categories")
-public interface CategoryAndQuantity {
+public interface InterfaceDto {
 
     Category getCategory();
     Long getQuantity();
