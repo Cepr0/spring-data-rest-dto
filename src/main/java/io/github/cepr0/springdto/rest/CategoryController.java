@@ -6,6 +6,9 @@ import io.github.cepr0.springdto.repo.CategoryRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+import org.springframework.hateoas.Link;
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +27,18 @@ public class CategoryController {
 
     @NonNull
     private final CategoryRepo repo;
-    
+
+    @NonNull
+    private final RepositoryEntityLinks entityLinks;
+
     @GetMapping("/classDto")
     public ResponseEntity<?> classDto() {
         List<CategoryClassDto> dtos = repo.getClassDtos();
         return ResponseEntity.ok(new Resources<>(dtos));
+        List<ClassDto> dtos = repo.getClassDtos();
+
+        Link selfRel = entityLinks.linkFor(Category.class).slash("/classDto").withSelfRel();
+        return ResponseEntity.ok(new Resources<>(dtos, selfRel));
     }
 
     @GetMapping("/interfaceDto")
