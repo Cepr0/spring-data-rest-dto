@@ -1,17 +1,17 @@
 package io.github.cepr0.springdto.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.cepr0.springdto.domain.Category;
+import lombok.Data;
 import org.springframework.hateoas.core.Relation;
 
 /**
  * @author Cepro
- * @since 2017-07-20
+ *         2017-07-21
  */
-@JsonSerialize(as = InterfaceDto.class)
+@Data
 @Relation(value = "category", collectionRelation = "categories")
-public interface InterfaceDto {
+public class CategoryClassDto {
 
-    Category getCategory();
-    Long getQuantity();
+    private final Category category;
+    private final Long quantity;
 }

@@ -1,7 +1,7 @@
 package io.github.cepr0.springdto.rest;
 
-import io.github.cepr0.springdto.dto.ClassDto;
-import io.github.cepr0.springdto.dto.InterfaceDto;
+import io.github.cepr0.springdto.dto.CategoryClassDto;
+import io.github.cepr0.springdto.dto.CategoryInterfaceDto;
 import io.github.cepr0.springdto.repo.CategoryRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +27,13 @@ public class CategoryController {
     
     @GetMapping("/classDto")
     public ResponseEntity<?> classDto() {
-        List<ClassDto> dtos = repo.getClassDtos();
+        List<CategoryClassDto> dtos = repo.getClassDtos();
         return ResponseEntity.ok(new Resources<>(dtos));
     }
 
     @GetMapping("/interfaceDto")
     public ResponseEntity<?> interfaceDto() {
-        List<InterfaceDto> dtos = repo.getInterfaceDtos();
+        List<CategoryInterfaceDto> dtos = repo.getInterfaceDtos();
         return ResponseEntity.ok(new Resources<>(dtos));
     }
 }
