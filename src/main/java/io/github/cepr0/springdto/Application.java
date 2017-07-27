@@ -9,6 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -17,6 +18,16 @@ import static java.util.Arrays.asList;
 
 @SpringBootApplication
 public class Application {
+    
+    private static RepositoryEntityLinks entityLinks;
+    
+    public Application(RepositoryEntityLinks entityLinks) {
+        Application.entityLinks = entityLinks;
+    }
+    
+    public static RepositoryEntityLinks links() {
+        return entityLinks;
+    }
     
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -27,11 +38,6 @@ public class Application {
         return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
     }
 
-    // @Bean
-    // RelProvider relProvider() {
-    //     return new MyRelProvider();
-    // }
-    
     @Bean
     public ApplicationRunner demoData(BaseRepo repo) {
         return (ApplicationArguments args) -> {

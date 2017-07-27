@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 @Data
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "products")
 @Entity
 public class Category extends BaseEntity {
     

@@ -3,6 +3,8 @@ package io.github.cepr0.springdto.repo;
 import io.github.cepr0.springdto.domain.Category;
 import io.github.cepr0.springdto.dto.CategoryClassDto;
 import io.github.cepr0.springdto.dto.CategoryInterfaceDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,10 @@ public interface CategoryRepo extends JpaRepository<Category, Integer> {
     @RestResource(exported = false)
     @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
     List<CategoryClassDto> getClassDtos();
+    
+    @RestResource(exported = false)
+    @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
+    Page<CategoryClassDto> getClassDtos(Pageable pageable);
 
     @Transactional(readOnly = true)
     @RestResource(path="byProductIds", rel="byProductIds")
