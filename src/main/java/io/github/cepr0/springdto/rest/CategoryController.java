@@ -35,14 +35,14 @@ public class CategoryController {
     private final RepositoryEntityLinks links;
 
     @NonNull
-    private final PagedResourcesAssembler<CategoryClassDto> assembler;
+    private final PagedResourcesAssembler<CategoryInterfaceDto> assembler;
 
     @GetMapping("/classDto")
     public ResponseEntity<?> classDto() {
-        List<CategoryClassDto> dtos = repo.getClassDtos();
+        List<CategoryInterfaceDto> dtos = repo.getClassDtos();
         
         Link selfRel = links.linkFor(Category.class).slash("/classDto").withSelfRel();
-        Resources<Resource<CategoryClassDto>> resources = Resources.wrap(dtos);
+        Resources<Resource<CategoryInterfaceDto>> resources = Resources.wrap(dtos);
         resources.add(selfRel);
 
         return ResponseEntity.ok(resources);
@@ -50,7 +50,7 @@ public class CategoryController {
 
     @GetMapping("/classDtoPaged")
     public ResponseEntity<?> classDtoPaged(Pageable pageable) {
-        Page<CategoryClassDto> dtos = repo.getClassDtos(pageable);
+        Page<CategoryInterfaceDto> dtos = repo.getClassDtos(pageable);
 
         Link selfRel = links.linkFor(Category.class).slash("/classDtoPaged").withSelfRel();
         PagedResources<?> resources = assembler.toResource(dtos, selfRel);
@@ -60,16 +60,38 @@ public class CategoryController {
     @GetMapping("/interfaceDto")
     public ResponseEntity<?> interfaceDto() {
         List<CategoryInterfaceDto> dtos = repo.getInterfaceDtos();
-        return ResponseEntity.ok(new Resources<>(dtos));
+
+        Link selfRel = links.linkFor(Category.class).slash("/interfaceDto").withSelfRel();
+        Resources<Resource<CategoryInterfaceDto>> resources = Resources.wrap(dtos);
+        resources.add(selfRel);
+
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/interfaceDtoPaged")
+    public ResponseEntity<?> interfaceDtoPaged(Pageable pageable) {
+        Page<CategoryInterfaceDto> dtos = repo.getClassDtos(pageable);
+
+        Link selfRel = links.linkFor(Category.class).slash("/interfaceDtoPaged").withSelfRel();
+        PagedResources<?> resources = assembler.toResource(dtos, selfRel);
+        return ResponseEntity.ok(resources);
     }
 
     @Bean
-    public ResourceProcessor<Resource<CategoryClassDto>> categoryProcessor() {
-        return new ResourceProcessor<Resource<CategoryClassDto>>() { // Don't convert to lambda! Wont work!
+    public ResourceProcessor<Resource<CategoryInterfaceDto>> categoryProcessor() {
+        return new ResourceProcessor<Resource<CategoryInterfaceDto>>() { // Don't convert to lambda! Wont work!
             @Override
-            public Resource<CategoryClassDto> process(Resource<CategoryClassDto> resource) {
-                resource.add(links.linkForSingleResource(resource.getContent().getCategory()).withRel("category"));
-                return resource;
+            public Resource<CategoryInterfaceDto> process(Resource<CategoryInterfaceDto> resource) {
+
+                CategoryInterfaceDto content = resource.getContent();
+                Link link = links.linkForSingleResource(resource.getContent().getCategory()).withRel("category");
+
+                if (content instanceof CategoryClassDto) {
+                    return new Resource<>(content, link);
+                } else {
+                    resource.add(link);
+                    return resource;
+                }
             }
         };
     }

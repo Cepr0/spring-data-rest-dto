@@ -27,11 +27,11 @@ public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
     @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
-    List<CategoryClassDto> getClassDtos();
+    List<CategoryInterfaceDto> getClassDtos();
     
     @RestResource(exported = false)
     @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
-    Page<CategoryClassDto> getClassDtos(Pageable pageable);
+    Page<CategoryInterfaceDto> getClassDtos(Pageable pageable);
 
     @Transactional(readOnly = true)
     @RestResource(path="byProductIds", rel="byProductIds")
