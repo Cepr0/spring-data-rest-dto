@@ -70,7 +70,7 @@ public class CategoryController {
 
     @GetMapping("/interfaceDtoPaged")
     public ResponseEntity<?> interfaceDtoPaged(Pageable pageable) {
-        Page<CategoryInterfaceDto> dtos = repo.getClassDtos(pageable);
+        Page<CategoryInterfaceDto> dtos = repo.getInterfaceDtos(pageable);
 
         Link selfRel = links.linkFor(Category.class).slash("/interfaceDtoPaged").withSelfRel();
         PagedResources<?> resources = assembler.toResource(dtos, selfRel);
