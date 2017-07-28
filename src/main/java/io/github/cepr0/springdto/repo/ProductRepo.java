@@ -30,4 +30,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     @RestResource(exported = false)
     @Query("select new io.github.cepr0.springdto.dto.ProductClassDto(p) from Product p")
     List<ProductClassDto> getClassDtos();
+
+    @RestResource(exported = false)
+    @Query("select new io.github.cepr0.springdto.dto.ProductClassDto(p) from Product p")
+    Page<ProductClassDto> getClassDtos(Pageable pageable);
 }

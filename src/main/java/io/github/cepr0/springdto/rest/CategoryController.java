@@ -64,7 +64,7 @@ public class CategoryController {
     }
 
     @Bean
-    public ResourceProcessor<Resource<CategoryClassDto>> resourceProcessor() {
+    public ResourceProcessor<Resource<CategoryClassDto>> categoryProcessor() {
         return new ResourceProcessor<Resource<CategoryClassDto>>() { // Don't convert to lambda! Wont work!
             @Override
             public Resource<CategoryClassDto> process(Resource<CategoryClassDto> resource) {
