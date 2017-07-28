@@ -1,4 +1,4 @@
-package io.github.cepr0.springdto.rest;
+package io.github.cepr0.springdto.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.PagedResources;
@@ -8,7 +8,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.stereotype.Component;
 
 /**
- * Repository REST Resource processors of any entities. Dev purposes only.
+ * Processors of any resource. Dev purposes only.
  * @author Cepro, 2017-01-28
  */
 @Slf4j

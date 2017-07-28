@@ -2,10 +2,7 @@ package io.github.cepr0.springdto.dto;
 
 import io.github.cepr0.springdto.domain.Category;
 import lombok.Data;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.core.Relation;
-
-import static io.github.cepr0.springdto.Application.links;
 
 /**
  * @author Cepro
@@ -13,14 +10,8 @@ import static io.github.cepr0.springdto.Application.links;
  */
 @Data
 @Relation(value = "category", collectionRelation = "categories")
-public class CategoryClassDto extends Resource<Category> {
+public class CategoryClassDto {
 
     private final Category category;
     private final Long quantity;
-    
-    public CategoryClassDto(Category category, Long quantity) {
-        super(category, links().linkForSingleResource(category).withRel("category"));
-        this.category = category;
-        this.quantity = quantity;
-    }
 }

@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.springframework.data.rest.core.config.Projection;
 
 import javax.persistence.Entity;
 
@@ -20,9 +19,4 @@ import javax.persistence.Entity;
 public class Product extends BaseEntity {
 
     private final String name;
-
-    @Projection(name = "onlyName", types = {Product.class})
-    public interface OnlyName {
-        String getName();
-    }
 }

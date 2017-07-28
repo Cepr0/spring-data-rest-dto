@@ -1,4 +1,4 @@
-package io.github.cepr0.springdto.dto;
+package io.github.cepr0.springdto.support;
 
 import org.springframework.hateoas.RelProvider;
 import org.springframework.stereotype.Component;
