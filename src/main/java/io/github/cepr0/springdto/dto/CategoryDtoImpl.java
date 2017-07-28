@@ -10,7 +10,7 @@ import org.springframework.hateoas.core.Relation;
  */
 @Data
 @Relation(value = "category", collectionRelation = "categories")
-public class CategoryClassDto implements CategoryInterfaceDto {
+public class CategoryDtoImpl implements CategoryDto {
 
     private final Category category;
     private final Long quantity;

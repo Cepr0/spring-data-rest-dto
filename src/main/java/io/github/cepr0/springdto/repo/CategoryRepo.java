@@ -1,8 +1,7 @@
 package io.github.cepr0.springdto.repo;
 
 import io.github.cepr0.springdto.domain.Category;
-import io.github.cepr0.springdto.dto.CategoryClassDto;
-import io.github.cepr0.springdto.dto.CategoryInterfaceDto;
+import io.github.cepr0.springdto.dto.CategoryDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,21 +21,17 @@ import java.util.List;
 public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
-    @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    List<CategoryInterfaceDto> getInterfaceDtos();
-
-    @RestResource(exported = false)
-    @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    Page<CategoryInterfaceDto> getInterfaceDtos(Pageable pageable);
+    @Query("select c as category, count(p) as quantity from Category c join c.products p where c = ?1 group by c")
+    CategoryDto getDto(Category category);
     
     @RestResource(exported = false)
-    @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
-    List<CategoryInterfaceDto> getClassDtos();
+    @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
+    List<CategoryDto> getDtos();
     
     @RestResource(exported = false)
-    @Query("select new io.github.cepr0.springdto.dto.CategoryClassDto(c, count(p)) from Category c join c.products p group by c")
-    Page<CategoryInterfaceDto> getClassDtos(Pageable pageable);
-
+    @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
+    Page<CategoryDto> getDtos(Pageable pageable);
+    
     @Transactional(readOnly = true)
     @RestResource(path="byProductIds", rel="byProductIds")
     @Query("select c from Category c join c.products p on p.id in (?1)")

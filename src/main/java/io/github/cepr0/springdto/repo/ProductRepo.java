@@ -1,8 +1,7 @@
 package io.github.cepr0.springdto.repo;
 
 import io.github.cepr0.springdto.domain.Product;
-import io.github.cepr0.springdto.dto.ProductClassDto;
-import io.github.cepr0.springdto.dto.ProductInterfaceDto;
+import io.github.cepr0.springdto.dto.ProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,14 +23,14 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Page<Product> findByNameContainingIgnoreCase(@Param("name") String namePart, Pageable pageable);
     
     @RestResource(exported = false)
-    @Query("select p.name as name from Product p")
-    List<ProductInterfaceDto> getInterfaceDtos();
+    @Query("select p as product, p.name as name from Product p where p = ?1")
+    ProductDto getDto(Product product);
     
     @RestResource(exported = false)
-    @Query("select new io.github.cepr0.springdto.dto.ProductClassDto(p) from Product p")
-    List<ProductClassDto> getClassDtos();
-
+    @Query("select p as product, p.name as name from Product p")
+    List<ProductDto> getDtos();
+    
     @RestResource(exported = false)
-    @Query("select new io.github.cepr0.springdto.dto.ProductClassDto(p) from Product p")
-    Page<ProductClassDto> getClassDtos(Pageable pageable);
+    @Query("select p as product, p.name as name from Product p")
+    Page<ProductDto> getDtos(Pageable pageable);
 }

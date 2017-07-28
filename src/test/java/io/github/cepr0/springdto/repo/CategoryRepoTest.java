@@ -1,7 +1,7 @@
 package io.github.cepr0.springdto.repo;
 
 import io.github.cepr0.springdto.BaseTest;
-import io.github.cepr0.springdto.dto.CategoryInterfaceDto;
+import io.github.cepr0.springdto.dto.CategoryDto;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,7 +20,7 @@ public class CategoryRepoTest extends BaseTest {
 
     @Test
     public void getClassDtos() throws Exception {
-        List<CategoryInterfaceDto> list = repo.getClassDtos();
+        List<CategoryDto> list = repo.getDtos();
         assertThat(list).isNotNull();
         assertThat(list.size()).isNotZero();
     }

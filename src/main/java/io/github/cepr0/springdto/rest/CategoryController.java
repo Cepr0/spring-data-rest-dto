@@ -1,8 +1,8 @@
 package io.github.cepr0.springdto.rest;
 
 import io.github.cepr0.springdto.domain.Category;
-import io.github.cepr0.springdto.dto.CategoryClassDto;
-import io.github.cepr0.springdto.dto.CategoryInterfaceDto;
+import io.github.cepr0.springdto.dto.CategoryDto;
+import io.github.cepr0.springdto.dto.CategoryDtoImpl;
 import io.github.cepr0.springdto.repo.CategoryRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -28,70 +29,51 @@ import java.util.List;
 @RequestMapping("/categories")
 public class CategoryController {
 
-    @NonNull
-    private final CategoryRepo repo;
+    @NonNull private final CategoryRepo repo;
+    @NonNull private final RepositoryEntityLinks links;
+    @NonNull private final PagedResourcesAssembler<CategoryDto> assembler;
 
-    @NonNull
-    private final RepositoryEntityLinks links;
+    @GetMapping("/{id}/dto")
+    public ResponseEntity<?> getDto(@PathVariable("id") Category category) {
+        CategoryDto dto = repo.getDto(category);
+        Resource<CategoryDto> resource = new Resource<>(dto);
+        return ResponseEntity.ok(resource);
+    }
+    
+    @GetMapping("/dto")
+    public ResponseEntity<?> getDtos() {
+        List<CategoryDto> dtos = repo.getDtos();
 
-    @NonNull
-    private final PagedResourcesAssembler<CategoryInterfaceDto> assembler;
-
-    @GetMapping("/classDto")
-    public ResponseEntity<?> classDto() {
-        List<CategoryInterfaceDto> dtos = repo.getClassDtos();
-        
-        Link selfRel = links.linkFor(Category.class).slash("/classDto").withSelfRel();
-        Resources<Resource<CategoryInterfaceDto>> resources = Resources.wrap(dtos);
-        resources.add(selfRel);
+        Link selfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
+        Resources<Resource<CategoryDto>> resources = Resources.wrap(dtos);
+        resources.add(selfLink);
 
         return ResponseEntity.ok(resources);
     }
 
-    @GetMapping("/classDtoPaged")
-    public ResponseEntity<?> classDtoPaged(Pageable pageable) {
-        Page<CategoryInterfaceDto> dtos = repo.getClassDtos(pageable);
+    @GetMapping("/dtoPaged")
+    public ResponseEntity<?> getDtosPaged(Pageable pageable) {
+        Page<CategoryDto> dtos = repo.getDtos(pageable);
 
-        Link selfRel = links.linkFor(Category.class).slash("/classDtoPaged").withSelfRel();
-        PagedResources<?> resources = assembler.toResource(dtos, selfRel);
-        return ResponseEntity.ok(resources);
-    }
+        Link selfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
+        PagedResources<?> resources = assembler.toResource(dtos, selfLink);
 
-    @GetMapping("/interfaceDto")
-    public ResponseEntity<?> interfaceDto() {
-        List<CategoryInterfaceDto> dtos = repo.getInterfaceDtos();
-
-        Link selfRel = links.linkFor(Category.class).slash("/interfaceDto").withSelfRel();
-        Resources<Resource<CategoryInterfaceDto>> resources = Resources.wrap(dtos);
-        resources.add(selfRel);
-
-        return ResponseEntity.ok(resources);
-    }
-
-    @GetMapping("/interfaceDtoPaged")
-    public ResponseEntity<?> interfaceDtoPaged(Pageable pageable) {
-        Page<CategoryInterfaceDto> dtos = repo.getInterfaceDtos(pageable);
-
-        Link selfRel = links.linkFor(Category.class).slash("/interfaceDtoPaged").withSelfRel();
-        PagedResources<?> resources = assembler.toResource(dtos, selfRel);
         return ResponseEntity.ok(resources);
     }
 
     @Bean
-    public ResourceProcessor<Resource<CategoryInterfaceDto>> categoryProcessor() {
-        return new ResourceProcessor<Resource<CategoryInterfaceDto>>() { // Don't convert to lambda! Wont work!
+    public ResourceProcessor<Resource<CategoryDto>> categoryDtoProcessor() {
+        return new ResourceProcessor<Resource<CategoryDto>>() { // Don't convert to lambda! Wont work!
             @Override
-            public Resource<CategoryInterfaceDto> process(Resource<CategoryInterfaceDto> resource) {
-
-                CategoryInterfaceDto content = resource.getContent();
-                Link link = links.linkForSingleResource(resource.getContent().getCategory()).withRel("category");
-
-                if (content instanceof CategoryClassDto) {
-                    return new Resource<>(content, link);
-                } else {
-                    resource.add(link);
-                    return resource;
-                }
+            public Resource<CategoryDto> process(Resource<CategoryDto> resource) {
+                CategoryDto content = resource.getContent();
+                
+                CategoryDtoImpl dto = new CategoryDtoImpl(content.getCategory(), content.getQuantity());
+                
+                Link categoryLink = links.linkForSingleResource(content.getCategory()).withRel("category");
+                Link selfLink = links.linkForSingleResource(content.getCategory()).slash("/dto").withSelfRel();
+    
+                return new Resource<>(dto, categoryLink, selfLink);
             }
         };
     }
