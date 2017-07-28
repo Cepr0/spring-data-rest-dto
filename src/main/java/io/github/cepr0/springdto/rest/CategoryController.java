@@ -53,7 +53,7 @@ public class CategoryController {
         Page<CategoryClassDto> dtos = repo.getClassDtos(pageable);
 
         Link selfRel = links.linkFor(Category.class).slash("/classDtoPaged").withSelfRel();
-        PagedResources<?> resources = assembler.toResource(dtos, /*this::toResource, */selfRel);
+        PagedResources<?> resources = assembler.toResource(dtos, selfRel);
         return ResponseEntity.ok(resources);
     }
 
