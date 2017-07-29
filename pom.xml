@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.cepr0</groupId>
-	<artifactId>spring-dto-test</artifactId>
+	<artifactId>spring-data-rest-dto</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>spring-dto-test</name>
-	<description>Test project for DTO in Spring Boot</description>
+	<name>spring-data-rest-dto</name>
+	<description>An approach of how to work with DTO in Spring Data REST projects</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

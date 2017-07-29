@@ -19,7 +19,7 @@ public class CategoryRepoTest extends BaseTest {
     private CategoryRepo repo;
 
     @Test
-    public void getClassDtos() throws Exception {
+    public void getDtos() throws Exception {
         List<CategoryDto> list = repo.getDtos();
         assertThat(list).isNotNull();
         assertThat(list.size()).isNotZero();
