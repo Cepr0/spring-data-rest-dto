@@ -1,6 +1,6 @@
-# Spring Data REST projects and DTO
+# Spring Data REST and DTO
 
-An approach of how to work with [DTO][1] in [Spring Data REST][2] projects
+_An approach of how to work with [DTO][1] in [Spring Data REST][2] projects_
 
 ## Entities
 
@@ -107,8 +107,8 @@ public class CategoryController {
     @GetMapping("/{id}/dto")
     public ResponseEntity<?> getDto(@PathVariable("id") Integer categoryId) {
         CategoryProjection dto = repo.getDto(categoryId);
-        Resource<CategoryProjection> resource = new Resource<>(dto);
-        return ResponseEntity.ok(resource);
+        
+        return ResponseEntity.ok(toResource(dto));
     }
     
     /**
@@ -117,12 +117,11 @@ public class CategoryController {
     @GetMapping("/dto")
     public ResponseEntity<?> getDtos() {
         List<CategoryProjection> dtos = repo.getDtos();
+    
+        Link listSelfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
+        List<?> resources = dtos.stream().map(this::toResource).collect(toList());
 
-        Link selfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
-        Resources<Resource<CategoryProjection>> resources = Resources.wrap(dtos);
-        resources.add(selfLink);
-
-        return ResponseEntity.ok(resources);
+        return ResponseEntity.ok(new Resources<>(resources, listSelfLink));
     }
 
     /**
@@ -132,46 +131,31 @@ public class CategoryController {
     public ResponseEntity<?> getDtosPaged(Pageable pageable) {
         Page<CategoryProjection> dtos = repo.getDtos(pageable);
 
-        Link selfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
-        PagedResources<?> resources = assembler.toResource(dtos, selfLink);
+        Link pageSelfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
+        PagedResources<?> resources = assembler.toResource(dtos, this::toResource, pageSelfLink);
 
         return ResponseEntity.ok(resources);
     }
 
-    @Bean
-    public ResourceProcessor<Resource<CategoryProjection>> categoryDtoProcessor() {
-        return new ResourceProcessor<Resource<CategoryProjection>>() { // Don't convert to lambda! Won't work!
-            @Override
-            public Resource<CategoryProjection> process(Resource<CategoryProjection> resource) {
-                CategoryProjection content = resource.getContent();
-                
-                CategoryDto dto = new CategoryDtoImpl(content.getCategory(), content.getQuantity());
-                
-                Link categoryLink = links.linkForSingleResource(content.getCategory()).withRel("category");
-                Link selfLink = links.linkForSingleResource(content.getCategory()).slash("/dto").withSelfRel();
-    
-                return new Resource<>(dto, categoryLink, selfLink);
-            }
-        };
+    private ResourceSupport toResource(CategoryProjection projection) {
+        CategoryDto dto = new CategoryDto(projection.getCategory(), projection.getQuantity());
+        
+        Link categoryLink = links.linkForSingleResource(projection.getCategory()).withRel("category");
+        Link selfLink = links.linkForSingleResource(projection.getCategory()).slash("/dto").withSelfRel();
+        
+        return new Resource<>(dto, categoryLink, selfLink);
     }
 }
 ```
 
-When Projection is received from repository it must be 'wrapped' to [Resource][5] objects. 
-Before sending to a client, controller 'puts' every resource to the appropriate [ResourceProcessor][6] 
-to give us the possibility to make additional transformations on it. 
-
-To convert a single Projection to a `Resource` we are using just `Resource` constructor; 
-to convert a list of Projection - the static method `wrap` of the class `Resources` and 
-to convert a paged list of Projection - `toResource` method of the injected `PagedResourcesAssembler`.
-
-When a resource hits the `ResourceProcessor` we extract a Projection from it, create a new DTO,
-create the necessary links for this object, and then create a new `Resource` with the object and its links 
-and return it to the controller. Then the controller renders DTO (or the list of DTO) and returns the result to the client.  
+When Projections are received from repository we must make the final transformation from a Projection to DTO 
+and 'wrap' it to [ResourceSupport][5] object before sending to the client. 
+To do this we use helper method `toResource`: we create a new DTO, create necessary links for this object, 
+and then create a new `Resource` with the object and its links.  
 
 ## Result
 
-(See API docs on [Postman site](https://documenter.getpostman.com/view/788154/spring-data-rest-dto/6mz3FWE))  
+_See the API docs on the [Postman site](https://documenter.getpostman.com/view/788154/spring-data-rest-dto/6mz3FWE)_  
 
 ### Singe DTO
 
@@ -296,5 +280,4 @@ and return it to the controller. Then the controller renders DTO (or the list of
 [2]: https://projects.spring.io/spring-data-rest/
 [3]: http://docs.spring.io/spring-hateoas/docs/current-SNAPSHOT/api/org/springframework/hateoas/Identifiable.html 
 [4]: https://spring.io/blog/2016/05/03/what-s-new-in-spring-data-hopper#projections-on-repository-query-methods
-[5]: http://docs.spring.io/spring-hateoas/docs/current-SNAPSHOT/api/org/springframework/hateoas/Resource.html
-[6]: http://docs.spring.io/spring-hateoas/docs/current/api/org/springframework/hateoas/ResourceProcessor.html
+[5]: http://docs.spring.io/spring-hateoas/docs/current-SNAPSHOT/api/org/springframework/hateoas/ResourceSupport.html

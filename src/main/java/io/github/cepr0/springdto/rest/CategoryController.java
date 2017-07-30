@@ -1,12 +1,11 @@
 package io.github.cepr0.springdto.rest;
 
 import io.github.cepr0.springdto.domain.Category;
-import io.github.cepr0.springdto.dto.CategoryProjection;
 import io.github.cepr0.springdto.dto.CategoryDto;
+import io.github.cepr0.springdto.dto.CategoryProjection;
 import io.github.cepr0.springdto.repo.CategoryRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Cepro
@@ -36,45 +37,36 @@ public class CategoryController {
     @GetMapping("/{id}/dto")
     public ResponseEntity<?> getDto(@PathVariable("id") Integer categoryId) {
         CategoryProjection dto = repo.getDto(categoryId);
-        Resource<CategoryProjection> resource = new Resource<>(dto);
-        return ResponseEntity.ok(resource);
+        
+        return ResponseEntity.ok(toResource(dto));
     }
     
     @GetMapping("/dto")
     public ResponseEntity<?> getDtos() {
         List<CategoryProjection> dtos = repo.getDtos();
+    
+        Link listSelfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
+        List<?> resources = dtos.stream().map(this::toResource).collect(toList());
 
-        Link selfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
-        Resources<Resource<CategoryProjection>> resources = Resources.wrap(dtos);
-        resources.add(selfLink);
-
-        return ResponseEntity.ok(resources);
+        return ResponseEntity.ok(new Resources<>(resources, listSelfLink));
     }
 
     @GetMapping("/dtoPaged")
     public ResponseEntity<?> getDtosPaged(Pageable pageable) {
         Page<CategoryProjection> dtos = repo.getDtos(pageable);
 
-        Link selfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
-        PagedResources<?> resources = assembler.toResource(dtos, selfLink);
+        Link pageSelfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
+        PagedResources<?> resources = assembler.toResource(dtos, this::toResource, pageSelfLink);
 
         return ResponseEntity.ok(resources);
     }
 
-    @Bean
-    public ResourceProcessor<Resource<CategoryProjection>> categoryDtoProcessor() {
-        return new ResourceProcessor<Resource<CategoryProjection>>() { // Don't convert to lambda! Won't work!
-            @Override
-            public Resource<CategoryProjection> process(Resource<CategoryProjection> resource) {
-                CategoryProjection content = resource.getContent();
-                
-                CategoryDto dto = new CategoryDto(content.getCategory(), content.getQuantity());
-                
-                Link categoryLink = links.linkForSingleResource(content.getCategory()).withRel("category");
-                Link selfLink = links.linkForSingleResource(content.getCategory()).slash("/dto").withSelfRel();
-    
-                return new Resource<>(dto, categoryLink, selfLink);
-            }
-        };
+    private ResourceSupport toResource(CategoryProjection projection) {
+        CategoryDto dto = new CategoryDto(projection.getCategory(), projection.getQuantity());
+        
+        Link categoryLink = links.linkForSingleResource(projection.getCategory()).withRel("category");
+        Link selfLink = links.linkForSingleResource(projection.getCategory()).slash("/dto").withSelfRel();
+        
+        return new Resource<>(dto, categoryLink, selfLink);
     }
 }
