@@ -4,7 +4,7 @@ _An approach of how to work with [DTO][1] in [Spring Data REST][2] projects_
 
 ## Entities
 
-Entities must be inherited from [Identifiable][3] interface. For example:
+Entities must implement the [Identifiable][3] interface. For example:
 
 ```java
 @Entity
