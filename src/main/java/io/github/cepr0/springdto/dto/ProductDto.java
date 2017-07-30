@@ -1,13 +1,19 @@
 package io.github.cepr0.springdto.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.cepr0.springdto.domain.Product;
+import lombok.Data;
+import org.springframework.hateoas.core.Relation;
 
 /**
  * @author Cepro
  * @since 2017-07-22
  */
-public interface ProductDto {
-    
-    Product getProduct();
-    String getName();
+@Data
+@Relation(value = "product", collectionRelation = "products")
+public class ProductDto implements ProductProjection {
+
+    @JsonIgnore
+    private final Product product;
+    private final String name;
 }

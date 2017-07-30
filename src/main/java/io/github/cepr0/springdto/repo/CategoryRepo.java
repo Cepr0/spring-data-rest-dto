@@ -1,7 +1,7 @@
 package io.github.cepr0.springdto.repo;
 
 import io.github.cepr0.springdto.domain.Category;
-import io.github.cepr0.springdto.dto.CategoryDto;
+import io.github.cepr0.springdto.dto.CategoryProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,15 +22,15 @@ public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p where c = ?1 group by c")
-    CategoryDto getDto(Category category);
+    CategoryProjection getDto(Category category);
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    List<CategoryDto> getDtos();
+    List<CategoryProjection> getDtos();
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    Page<CategoryDto> getDtos(Pageable pageable);
+    Page<CategoryProjection> getDtos(Pageable pageable);
     
     @Transactional(readOnly = true)
     @RestResource(path="byProductIds", rel="byProductIds")

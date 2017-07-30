@@ -1,13 +1,17 @@
 package io.github.cepr0.springdto.dto;
 
 import io.github.cepr0.springdto.domain.Category;
+import lombok.Data;
+import org.springframework.hateoas.core.Relation;
 
 /**
  * @author Cepro
- * @since 2017-07-20
+ *         2017-07-21
  */
-public interface CategoryDto {
+@Data
+@Relation(value = "category", collectionRelation = "categories")
+public class CategoryDto implements CategoryProjection {
 
-    Category getCategory();
-    Long getQuantity();
+    private final Category category;
+    private final Long quantity;
 }

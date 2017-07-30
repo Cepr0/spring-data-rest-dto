@@ -40,16 +40,14 @@ public class Product implements Identifiable<Integer> {
 Make a [projection][4] interface that repository query methods will return:
 
 ```java
-public interface CategoryDto {
+public interface CategoryProjection {
 
     Category getCategory();
     Long getQuantity();
-    
-    // skipped
 }
 ```
 
-It will be a basement for DTO. This example represent a `Category` and the number of `Product`s are belong to it.
+It will be a basement for DTO. DTO will represent a `Category` and the number of `Product`s are belong to it.
 
 ## Repository methods
 
@@ -61,15 +59,15 @@ public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p where c = ?1 group by c")
-    CategoryDto getDto(Category category);
+    CategoryProjection getDto(Category category);
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    List<CategoryDto> getDtos();
+    List<CategoryProjection> getDtos();
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
-    Page<CategoryDto> getDtos(Pageable pageable);
+    Page<CategoryProjection> getDtos(Pageable pageable);
 }
 ```
 
@@ -79,7 +77,7 @@ Implement DTO from its interface:
 
 ```java
 @Relation(value = "category", collectionRelation = "categories")
-public class CategoryDtoImpl implements CategoryDto {
+public class CategoryDto implements CategoryProjection {
 
     private final Category category;
     private final Long quantity;
@@ -101,15 +99,15 @@ public class CategoryController {
 
     @Autowired private CategoryRepo repo;
     @Autowired private RepositoryEntityLinks links;
-    @Autowired private PagedResourcesAssembler<CategoryDto> assembler;
+    @Autowired private PagedResourcesAssembler<CategoryProjection> assembler;
 
     /**
     * Single DTO
     */
     @GetMapping("/{id}/dto")
     public ResponseEntity<?> getDto(@PathVariable("id") Category category) {
-        CategoryDto dto = repo.getDto(category);
-        Resource<CategoryDto> resource = new Resource<>(dto);
+        CategoryProjection dto = repo.getDto(category);
+        Resource<CategoryProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }
     
@@ -118,10 +116,10 @@ public class CategoryController {
     */
     @GetMapping("/dto")
     public ResponseEntity<?> getDtos() {
-        List<CategoryDto> dtos = repo.getDtos();
+        List<CategoryProjection> dtos = repo.getDtos();
 
         Link selfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
-        Resources<Resource<CategoryDto>> resources = Resources.wrap(dtos);
+        Resources<Resource<CategoryProjection>> resources = Resources.wrap(dtos);
         resources.add(selfLink);
 
         return ResponseEntity.ok(resources);
@@ -132,7 +130,7 @@ public class CategoryController {
     */
     @GetMapping("/dtoPaged")
     public ResponseEntity<?> getDtosPaged(Pageable pageable) {
-        Page<CategoryDto> dtos = repo.getDtos(pageable);
+        Page<CategoryProjection> dtos = repo.getDtos(pageable);
 
         Link selfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
         PagedResources<?> resources = assembler.toResource(dtos, selfLink);
@@ -141,13 +139,13 @@ public class CategoryController {
     }
 
     @Bean
-    public ResourceProcessor<Resource<CategoryDto>> categoryDtoProcessor() {
-        return new ResourceProcessor<Resource<CategoryDto>>() { // Don't convert to lambda! Won't work!
+    public ResourceProcessor<Resource<CategoryProjection>> categoryDtoProcessor() {
+        return new ResourceProcessor<Resource<CategoryProjection>>() { // Don't convert to lambda! Won't work!
             @Override
-            public Resource<CategoryDto> process(Resource<CategoryDto> resource) {
-                CategoryDto content = resource.getContent();
+            public Resource<CategoryProjection> process(Resource<CategoryProjection> resource) {
+                CategoryProjection content = resource.getContent();
                 
-                CategoryDtoImpl dto = new CategoryDtoImpl(content.getCategory(), content.getQuantity());
+                CategoryDto dto = new CategoryDtoImpl(content.getCategory(), content.getQuantity());
                 
                 Link categoryLink = links.linkForSingleResource(content.getCategory()).withRel("category");
                 Link selfLink = links.linkForSingleResource(content.getCategory()).slash("/dto").withSelfRel();
@@ -159,17 +157,17 @@ public class CategoryController {
 }
 ```
 
-When DTO is received from repository it must be 'wrapped' to [Resource][5] objects. 
+When Projection is received from repository it must be 'wrapped' to [Resource][5] objects. 
 Before sending to a client, controller 'puts' every resource to the appropriate [ResourceProcessor][6] 
 to give us the possibility to make additional transformations on it. 
 
-To convert a single DTO to a `Resource` we are using just `Resource` constructor; 
-to convert a list of DTO - the static method `wrap` of the class `Resources` and 
-to convert a paged list of DTO - `toResource` method of the injected `PagedResourcesAssembler`.
+To convert a single Projection to a `Resource` we are using just `Resource` constructor; 
+to convert a list of Projection - the static method `wrap` of the class `Resources` and 
+to convert a paged list of Projection - `toResource` method of the injected `PagedResourcesAssembler`.
 
-When a resource hits the `ResourceProcessor` we extract a DTO from it, create a new DTO implementation object,
+When a resource hits the `ResourceProcessor` we extract a Projection from it, create a new DTO,
 create the necessary links for this object, and then create a new `Resource` with the object and its links 
-and return it to the controller. The controller returns the result to the client.  
+and return it to the controller. Then the controller renders DTO (or the list of DTO) and returns the result to the client.  
 
 ## Result
 

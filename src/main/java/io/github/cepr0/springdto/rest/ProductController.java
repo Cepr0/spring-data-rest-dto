@@ -1,8 +1,8 @@
 package io.github.cepr0.springdto.rest;
 
 import io.github.cepr0.springdto.domain.Product;
+import io.github.cepr0.springdto.dto.ProductProjection;
 import io.github.cepr0.springdto.dto.ProductDto;
-import io.github.cepr0.springdto.dto.ProductDtoImpl;
 import io.github.cepr0.springdto.repo.ProductRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,21 +31,21 @@ public class ProductController {
     
     @NonNull private final ProductRepo repo;
     @NonNull private final RepositoryEntityLinks links;
-    @NonNull private final PagedResourcesAssembler<ProductDto> assembler;
+    @NonNull private final PagedResourcesAssembler<ProductProjection> assembler;
     
     @GetMapping("/{id}/dto")
     public ResponseEntity<?> getDto(@PathVariable("id") Product product) {
-        ProductDto dto = repo.getDto(product);
-        Resource<ProductDto> resource = new Resource<>(dto);
+        ProductProjection dto = repo.getDto(product);
+        Resource<ProductProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }
     
     @GetMapping("/dto")
     public ResponseEntity<?> getDtos() {
-        List<ProductDto> dtos = repo.getDtos();
+        List<ProductProjection> dtos = repo.getDtos();
         
         Link selfLink = links.linkFor(Product.class).slash("/dto").withSelfRel();
-        Resources<Resource<ProductDto>> resources = Resources.wrap(dtos);
+        Resources<Resource<ProductProjection>> resources = Resources.wrap(dtos);
         resources.add(selfLink);
         
         return ResponseEntity.ok(resources);
@@ -53,7 +53,7 @@ public class ProductController {
     
     @GetMapping("/dtoPaged")
     public ResponseEntity<?> getDtosPaged(Pageable pageable) {
-        Page<ProductDto> dtos = repo.getDtos(pageable);
+        Page<ProductProjection> dtos = repo.getDtos(pageable);
         
         Link selfLink = links.linkFor(Product.class).slash("/dtoPaged").withSelfRel();
         PagedResources<?> resources = assembler.toResource(dtos, selfLink);
@@ -62,13 +62,13 @@ public class ProductController {
     }
     
     @Bean
-    public ResourceProcessor<Resource<ProductDto>> productDtoProcessor() {
-        return new ResourceProcessor<Resource<ProductDto>>() { // Don't convert to lambda! Wont work!
+    public ResourceProcessor<Resource<ProductProjection>> productDtoProcessor() {
+        return new ResourceProcessor<Resource<ProductProjection>>() { // Don't convert to lambda! Wont work!
             @Override
-            public Resource<ProductDto> process(Resource<ProductDto> resource) {
-                ProductDto content = resource.getContent();
+            public Resource<ProductProjection> process(Resource<ProductProjection> resource) {
+                ProductProjection content = resource.getContent();
                 
-                ProductDtoImpl dto = new ProductDtoImpl(content.getProduct(), content.getName());
+                ProductDto dto = new ProductDto(content.getProduct(), content.getName());
                 
                 Link productLink = links.linkForSingleResource(content.getProduct()).withRel("product");
                 Link selfLink = links.linkForSingleResource(content.getProduct()).slash("/dto").withSelfRel();

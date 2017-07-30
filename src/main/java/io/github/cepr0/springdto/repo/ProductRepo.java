@@ -1,7 +1,7 @@
 package io.github.cepr0.springdto.repo;
 
 import io.github.cepr0.springdto.domain.Product;
-import io.github.cepr0.springdto.dto.ProductDto;
+import io.github.cepr0.springdto.dto.ProductProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,13 +24,13 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     
     @RestResource(exported = false)
     @Query("select p as product, p.name as name from Product p where p = ?1")
-    ProductDto getDto(Product product);
+    ProductProjection getDto(Product product);
     
     @RestResource(exported = false)
     @Query("select p as product, p.name as name from Product p")
-    List<ProductDto> getDtos();
+    List<ProductProjection> getDtos();
     
     @RestResource(exported = false)
     @Query("select p as product, p.name as name from Product p")
-    Page<ProductDto> getDtos(Pageable pageable);
+    Page<ProductProjection> getDtos(Pageable pageable);
 }

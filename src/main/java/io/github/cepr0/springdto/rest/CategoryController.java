@@ -1,8 +1,8 @@
 package io.github.cepr0.springdto.rest;
 
 import io.github.cepr0.springdto.domain.Category;
+import io.github.cepr0.springdto.dto.CategoryProjection;
 import io.github.cepr0.springdto.dto.CategoryDto;
-import io.github.cepr0.springdto.dto.CategoryDtoImpl;
 import io.github.cepr0.springdto.repo.CategoryRepo;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,21 +31,21 @@ public class CategoryController {
 
     @NonNull private final CategoryRepo repo;
     @NonNull private final RepositoryEntityLinks links;
-    @NonNull private final PagedResourcesAssembler<CategoryDto> assembler;
+    @NonNull private final PagedResourcesAssembler<CategoryProjection> assembler;
 
     @GetMapping("/{id}/dto")
     public ResponseEntity<?> getDto(@PathVariable("id") Category category) {
-        CategoryDto dto = repo.getDto(category);
-        Resource<CategoryDto> resource = new Resource<>(dto);
+        CategoryProjection dto = repo.getDto(category);
+        Resource<CategoryProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }
     
     @GetMapping("/dto")
     public ResponseEntity<?> getDtos() {
-        List<CategoryDto> dtos = repo.getDtos();
+        List<CategoryProjection> dtos = repo.getDtos();
 
         Link selfLink = links.linkFor(Category.class).slash("/dto").withSelfRel();
-        Resources<Resource<CategoryDto>> resources = Resources.wrap(dtos);
+        Resources<Resource<CategoryProjection>> resources = Resources.wrap(dtos);
         resources.add(selfLink);
 
         return ResponseEntity.ok(resources);
@@ -53,7 +53,7 @@ public class CategoryController {
 
     @GetMapping("/dtoPaged")
     public ResponseEntity<?> getDtosPaged(Pageable pageable) {
-        Page<CategoryDto> dtos = repo.getDtos(pageable);
+        Page<CategoryProjection> dtos = repo.getDtos(pageable);
 
         Link selfLink = links.linkFor(Category.class).slash("/dtoPaged").withSelfRel();
         PagedResources<?> resources = assembler.toResource(dtos, selfLink);
@@ -62,13 +62,13 @@ public class CategoryController {
     }
 
     @Bean
-    public ResourceProcessor<Resource<CategoryDto>> categoryDtoProcessor() {
-        return new ResourceProcessor<Resource<CategoryDto>>() { // Don't convert to lambda! Won't work!
+    public ResourceProcessor<Resource<CategoryProjection>> categoryDtoProcessor() {
+        return new ResourceProcessor<Resource<CategoryProjection>>() { // Don't convert to lambda! Won't work!
             @Override
-            public Resource<CategoryDto> process(Resource<CategoryDto> resource) {
-                CategoryDto content = resource.getContent();
+            public Resource<CategoryProjection> process(Resource<CategoryProjection> resource) {
+                CategoryProjection content = resource.getContent();
                 
-                CategoryDtoImpl dto = new CategoryDtoImpl(content.getCategory(), content.getQuantity());
+                CategoryDto dto = new CategoryDto(content.getCategory(), content.getQuantity());
                 
                 Link categoryLink = links.linkForSingleResource(content.getCategory()).withRel("category");
                 Link selfLink = links.linkForSingleResource(content.getCategory()).slash("/dto").withSelfRel();
