@@ -21,8 +21,8 @@ import java.util.List;
 public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
-    @Query("select c as category, count(p) as quantity from Category c join c.products p where c = ?1 group by c")
-    CategoryProjection getDto(Category category);
+    @Query("select c as category, count(p) as quantity from Category c join c.products p where c.id = ?1 group by c")
+    CategoryProjection getDto(Integer categoryId);
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")

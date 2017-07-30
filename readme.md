@@ -58,8 +58,8 @@ Create methods return the projection: a single one, a list of DTO and a paged li
 public interface CategoryRepo extends JpaRepository<Category, Integer> {
     
     @RestResource(exported = false)
-    @Query("select c as category, count(p) as quantity from Category c join c.products p where c = ?1 group by c")
-    CategoryProjection getDto(Category category);
+    @Query("select c as category, count(p) as quantity from Category c join c.products p where c.id = ?1 group by c")
+    CategoryProjection getDto(Integer categoryId);
     
     @RestResource(exported = false)
     @Query("select c as category, count(p) as quantity from Category c join c.products p group by c")
@@ -105,8 +105,8 @@ public class CategoryController {
     * Single DTO
     */
     @GetMapping("/{id}/dto")
-    public ResponseEntity<?> getDto(@PathVariable("id") Category category) {
-        CategoryProjection dto = repo.getDto(category);
+    public ResponseEntity<?> getDto(@PathVariable("id") Integer categoryId) {
+        CategoryProjection dto = repo.getDto(categoryId);
         Resource<CategoryProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }
@@ -170,6 +170,8 @@ create the necessary links for this object, and then create a new `Resource` wit
 and return it to the controller. Then the controller renders DTO (or the list of DTO) and returns the result to the client.  
 
 ## Result
+
+(See API docs on [Postman site](https://documenter.getpostman.com/view/788154/spring-data-rest-dto/6mz3FWE))  
 
 ### Singe DTO
 

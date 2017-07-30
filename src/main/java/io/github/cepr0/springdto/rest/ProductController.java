@@ -34,8 +34,8 @@ public class ProductController {
     @NonNull private final PagedResourcesAssembler<ProductProjection> assembler;
     
     @GetMapping("/{id}/dto")
-    public ResponseEntity<?> getDto(@PathVariable("id") Product product) {
-        ProductProjection dto = repo.getDto(product);
+    public ResponseEntity<?> getDto(@PathVariable("id") Integer productId) {
+        ProductProjection dto = repo.getDto(productId);
         Resource<ProductProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }

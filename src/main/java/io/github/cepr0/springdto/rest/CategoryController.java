@@ -34,8 +34,8 @@ public class CategoryController {
     @NonNull private final PagedResourcesAssembler<CategoryProjection> assembler;
 
     @GetMapping("/{id}/dto")
-    public ResponseEntity<?> getDto(@PathVariable("id") Category category) {
-        CategoryProjection dto = repo.getDto(category);
+    public ResponseEntity<?> getDto(@PathVariable("id") Integer categoryId) {
+        CategoryProjection dto = repo.getDto(categoryId);
         Resource<CategoryProjection> resource = new Resource<>(dto);
         return ResponseEntity.ok(resource);
     }

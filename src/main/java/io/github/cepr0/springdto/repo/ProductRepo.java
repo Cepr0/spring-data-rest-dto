@@ -23,8 +23,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Page<Product> findByNameContainingIgnoreCase(@Param("name") String namePart, Pageable pageable);
     
     @RestResource(exported = false)
-    @Query("select p as product, p.name as name from Product p where p = ?1")
-    ProductProjection getDto(Product product);
+    @Query("select p as product, p.name as name from Product p where p.id = ?1")
+    ProductProjection getDto(Integer productId);
     
     @RestResource(exported = false)
     @Query("select p as product, p.name as name from Product p")
